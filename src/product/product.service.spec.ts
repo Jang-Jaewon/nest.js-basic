@@ -79,4 +79,16 @@ describe('ProductService', () => {
       });
     });
   });
+  describe('deleteProduct', () => {
+    it('상품 id가 주어진다면 생성된 상품을 삭제한다', async () => {
+      const ProductId = 1;
+      const productRepositoryDeleteSpy = jest
+        .spyOn(productRepository, 'delete')
+        .mockResolvedValue({} as DeleteResult);
+      const result = await productService.deleteProduct(ProductId);
+
+      expect(productRepositoryDeleteSpy).toHaveBeenCalledWith(ProductId);
+      expect(result).toBeUndefined();
+    });
+  });
 });
