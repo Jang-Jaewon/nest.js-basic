@@ -30,6 +30,26 @@ describe('ProductService', () => {
       description: '엘라고 아이폰 12 가족 케이스',
       price: '480000',
     };
+
+    // 상품 생성 Unit Test
+    describe('createProduct', () => {
+      it('상품을 생성하고, 생성한 상품을 반환한다.', async () => {
+        const createProduct = new Product();
+        Object.assign(createProduct, {
+          ...createProductDto,
+        });
+        const productRepositoryCreateSpy = jest
+          .spyOn(productRepository, 'createProduct')
+          .mockResolvedValue(createProduct);
+        const result = await productService.createProduct(createProductDto);
+
+        expect(productRepositoryCreateSpy).toBeCalledWith(createProduct);
+        expect(result).toBeInstanceOf(Object);
+        expect(result).toEqual(createProduct);
+      });
+    });
+
+    // 상품 수정 Unit Test
     describe('editProduct', () => {
       it('생성되지 않은 상품의 id로 수정하려한다면 찾을 수 없다는 예외를 발생시킨다.', async () => {
         jest.spyOn(productRepository, 'findOne').mockResolvedValue(undefined);
@@ -78,17 +98,18 @@ describe('ProductService', () => {
         expect(result).toEqual(updateProduct);
       });
     });
-  });
-  describe('deleteProduct', () => {
-    it('상품 id가 주어진다면 생성된 상품을 삭제한다', async () => {
-      const ProductId = 1;
-      const productRepositoryDeleteSpy = jest
-        .spyOn(productRepository, 'delete')
-        .mockResolvedValue({} as DeleteResult);
-      const result = await productService.deleteProduct(ProductId);
 
-      expect(productRepositoryDeleteSpy).toHaveBeenCalledWith(ProductId);
-      expect(result).toBeUndefined();
+    // 상품 삭제 Unit Test
+    describe('deleteProduct', () => {
+      it('상품 id가 주어진다면 생성된 상품을 삭제한다', async () => {
+        const productRepositoryDeleteSpy = jest
+          .spyOn(productRepository, 'delete')
+          .mockResolvedValue({} as DeleteResult);
+        const result = await productService.deleteProduct(ProductId);
+
+        expect(productRepositoryDeleteSpy).toHaveBeenCalledWith(ProductId);
+        expect(result).toBeUndefined();
+      });
     });
   });
 });
