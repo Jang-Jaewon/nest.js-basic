@@ -49,6 +49,67 @@ describe('ProductService', () => {
       });
     });
 
+    // 상품 List 조회 Unit Test
+    describe('findAll', () => {
+      it('생성된 모든 상품을 반환한다.', async () => {
+        const existingProductList = [];
+        const existingProduct1 = new Product();
+        Object.assign(existingProduct1, {
+          id: ProductId,
+          name: '아이패드 미니 거치대',
+          description: '오주주 아이패드 미니3 마그네틱 거치대',
+          price: '29000',
+        });
+        const existingProduct2 = new Product();
+        Object.assign(existingProduct2, {
+          id: ProductId,
+          name: 'LG 무선 청소기',
+          description: 'LG 코드 제로 무선 청소기',
+          price: '780000',
+        });
+        existingProductList.push(existingProduct1, existingProduct2);
+        const productRepositoryFindAllSpy = jest
+          .spyOn(productRepository, 'find')
+          .mockResolvedValue(existingProductList);
+        const result = await productService.getProducts();
+
+        expect(productRepositoryFindAllSpy).toBeCalled();
+        expect(result).toStrictEqual(existingProductList);
+      });
+    });
+
+    // 특정 상품 조회 Unit Test
+    describe('findById', () => {
+      it('존재하지 않은 상품 id로 조회를 요청한다면, 찾을 수 없다는 예외를 반환한다.', async () => {
+        const notExistProductId = 100;
+        jest.spyOn(productRepository, 'findOne').mockResolvedValue(undefined);
+        const result = async () => {
+          await productService.getProduct(notExistProductId);
+        };
+        await expect(result).rejects.toThrowError(
+          new NotFoundException('Product not found'),
+        );
+      });
+      it('존재하는 상품 id로 조회를 요청한다면, 해당 id의 상품을 반환한다.', async () => {
+        const existingProduct = new Product();
+        Object.assign(existingProduct, {
+          id: ProductId,
+          name: '아이패드 미니 거치대',
+          description: '오주주 아이패드 미니3 마그네틱 거치대',
+          price: '29000',
+        });
+        const productRepositoryFindOneSpy = jest
+          .spyOn(productRepository, 'findOne')
+          .mockResolvedValue(existingProduct);
+        const result = await productService.getProduct(ProductId);
+        expect(productRepositoryFindOneSpy).toHaveBeenCalledWith({
+          where: { id: ProductId },
+        });
+        expect(result.name).toBe('아이패드 미니 거치대');
+        expect(result.price).toBe('29000');
+      });
+    });
+
     // 상품 수정 Unit Test
     describe('editProduct', () => {
       it('생성되지 않은 상품의 id로 수정하려한다면 찾을 수 없다는 예외를 발생시킨다.', async () => {
